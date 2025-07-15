@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLUE N8n Trigger</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; }
+        button { padding: 15px 30px; font-size: 1.2em; cursor: pointer; background-color: #6264a7; color: white; border: none; border-radius: 5px; transition: background-color 0.3s ease; }
+        button:hover { background-color: #464883; }
+        #status { margin-top: 20px; font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Trigger CLUE Integration</h1>
+    <button id="triggerButton">Run CLUE Logic</button>
+    <p id="status"></p>
+
+    <script>
+        const n8nWebhookUrl = 'https://cambridgeai-dev.app.n8n.cloud/webhook-test/poc-clue'; 
+        const triggerButton = document.getElementById('triggerButton');
+        const statusParagraph = document.getElementById('status');
+
+        triggerButton.addEventListener('click', async () => {
+            statusParagraph.textContent = 'Triggering CLUE logic...';
+            triggerButton.disabled = true;
+
+            try {
+                const response = await fetch(n8nWebhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // Authentication headers if webhook requires (e.g., 'X-N8N-API-KEY': 'your-api-key')
+                    },
+                    body: JSON.stringify({
+                        // Pass any data your n8n workflow needs
+                        //action: 'runClueLogic',
+                        //timestamp: new Date().toISOString()
+                        // emailId: 'some-email-id-from-teams-context-if-available' // More advanced: get from Teams SDK
+                    })
+                });
+
+                const result = await response.json(); // Assuming n8n responds with JSON
+
+                if (response.ok) {
+                    statusParagraph.textContent = `Success! Response: ${JSON.stringify(result)}`;
+                    statusParagraph.style.color = 'green';
+                } else {
+                    statusParagraph.textContent = `Error: ${response.status} - ${result.message || JSON.stringify(result)}`;
+                    statusParagraph.style.color = 'red';
+                }
+            } catch (error) {
+                statusParagraph.textContent = `Network Error: ${error.message}`;
+                statusParagraph.style.color = 'red';
+                console.error('Fetch error:', error);
+            } finally {
+                triggerButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
